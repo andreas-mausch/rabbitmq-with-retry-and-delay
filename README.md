@@ -18,3 +18,14 @@ You need pika. Either install it via virtual env or like this:
 ```bash
 sudo pacman -S python-pika
 ```
+
+# Why do we need a delay exchange?
+
+In order for `x-delay` to work, we need an exchange of the type `x-delayed-message`.
+So we have the choice of either making our normal exchanges all of this type, or
+rather have only a single place for this exception.
+
+# TODOs
+
+- Use a quorum queue. Can we skip the `reject_count` then?
+- Increasing delay

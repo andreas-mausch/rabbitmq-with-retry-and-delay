@@ -12,10 +12,6 @@ logger.setLevel(logging.DEBUG)
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
-result = channel.queue_declare('', exclusive=True)
-queue_name = result.method.queue
-binding_keys = '*'
-
 print(' [*] Waiting for logs. To exit press CTRL+C')
 
 def my_callback(channel, method, properties, body):
@@ -39,6 +35,18 @@ def error_callback(channel, method, properties, body):
         return
 
     properties.headers['x-delay'] = 3000
+    channel.basic_publish(exchange='retry-delay-exchange',
+                          routing_key='delay-message',
+                          body=body,
+                          properties=properties)
+    channel.basic_ack(method.delivery_tag)
+
+def delay_callback(channel, method, properties, body):
+    logger.info(f"<< delay-queue: {method.routing_key}:{body}")
+    logger.info(f"                reason: {properties.headers['x-first-death-reason']}")
+    logger.info(f"                exchange: {properties.headers['x-first-death-exchange']} / queue: {properties.headers['x-first-death-queue']}")
+    logger.info(f"                {properties.headers['x-death']}")
+
     channel.basic_publish(exchange=properties.headers['x-first-death-exchange'],
                           routing_key=properties.headers['x-death'][0]['routing-keys'][0],
                           body=body,
@@ -46,7 +54,8 @@ def error_callback(channel, method, properties, body):
     channel.basic_ack(method.delivery_tag)
 
 channel.basic_consume(queue='my-queue', on_message_callback=my_callback, auto_ack=False)
-channel.basic_consume(queue='error-queue', on_message_callback=error_callback, auto_ack=False)
+channel.basic_consume(queue='retry-error-queue', on_message_callback=error_callback, auto_ack=False)
+channel.basic_consume(queue='retry-delay-queue', on_message_callback=delay_callback, auto_ack=False)
 
 try:
     channel.start_consuming()

@@ -10,7 +10,7 @@ channel.queue_bind(exchange='error-exchange',
                    queue='error-queue',
                    routing_key='*')
 
-channel.exchange_declare(exchange='my-exchange', exchange_type='topic')
+channel.exchange_declare(exchange='my-exchange', exchange_type='x-delayed-message', arguments={'x-delayed-type': 'topic'})
 channel.queue_declare(queue='my-queue', arguments={"x-dead-letter-exchange" : "error-exchange"})
 channel.queue_bind(exchange='my-exchange',
                    queue='my-queue',

@@ -20,6 +20,7 @@ print(' [*] Waiting for logs. To exit press CTRL+C')
 
 def my_callback(channel, method, properties, body):
     logger.info(f"<< my-queue: {method.routing_key}:{body}")
+    logger.info(f"             {properties}")
     # channel.basic_ack(delivery_tag=method_frame.delivery_tag)
     # channel.basic_nack(requeue=False)
     channel.basic_reject(method.delivery_tag, requeue=False)
@@ -37,6 +38,7 @@ def error_callback(channel, method, properties, body):
         channel.basic_reject(method.delivery_tag, requeue=False)
         return
 
+    properties.headers['x-delay'] = 3000
     channel.basic_publish(exchange=properties.headers['x-first-death-exchange'],
                           routing_key=properties.headers['x-death'][0]['routing-keys'][0],
                           body=body,

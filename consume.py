@@ -2,6 +2,14 @@
 import logging
 import pika
 
+RETRY_DELAY_DURATIONS_IN_MILLISECONDS = [
+    500, # 500ms
+    2 * 60 * 1000, # 2min
+    30 * 60 * 1000, # 30min
+    6 * 60 * 60 * 1000, # 6h
+    2 * 24 * 60 * 60 * 1000 # 2d
+]
+
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
     # level=logging.INFO,
@@ -29,12 +37,12 @@ def error_callback(channel, method, properties, body):
 
     reject_count = next((death for death in properties.headers['x-death'] if death['reason'] == 'rejected'))['count']
 
-    if reject_count < 0 or reject_count >= 5:
-        logger.info(f"XX re-queue limit exceeeded, too many rejections: {reject_count}. Dropping message.")
+    if reject_count < 1 or reject_count > len(RETRY_DELAY_DURATIONS_IN_MILLISECONDS):
+        logger.error(f"Re-queue limit exceeeded, too many rejections: {reject_count}. Dropping message.")
         channel.basic_reject(method.delivery_tag, requeue=False)
         return
 
-    properties.headers['x-delay'] = 3000
+    properties.headers['x-delay'] = RETRY_DELAY_DURATIONS_IN_MILLISECONDS[reject_count - 1]
     channel.basic_publish(exchange='retry-delay-exchange',
                           routing_key='delay-message',
                           body=body,

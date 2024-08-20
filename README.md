@@ -28,4 +28,3 @@ rather have only a single place for this exception.
 # TODOs
 
 - Use a quorum queue. Can we skip the `reject_count` then?
-- Increasing delay

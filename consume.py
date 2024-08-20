@@ -12,7 +12,7 @@ logger.setLevel(logging.DEBUG)
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
-print(' [*] Waiting for logs. To exit press CTRL+C')
+logger.info('Consumer started. Waiting for messages. To exit press CTRL+C')
 
 def my_callback(channel, method, properties, body):
     logger.info(f"<< my-queue: {method.routing_key}:{body}")

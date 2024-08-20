@@ -31,5 +31,6 @@ channel.queue_bind(exchange='my-exchange',
 channel.basic_publish(exchange='my-exchange',
                       routing_key='hello',
                       body='Hello World!')
-print(" >> Sent 'Hello World!'")
+print(" >> Sent new message 'Hello World!' to my-exchange")
+
 connection.close()

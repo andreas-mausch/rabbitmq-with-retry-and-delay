@@ -4,8 +4,14 @@ import pika
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
+channel.exchange_declare(exchange='retry-dead-letter-exchange', exchange_type='topic')
+channel.queue_declare(queue='retry-dead-letter-queue')
+channel.queue_bind(exchange='retry-dead-letter-exchange',
+                   queue='retry-dead-letter-queue',
+                   routing_key='*')
+
 channel.exchange_declare(exchange='retry-error-exchange', exchange_type='topic')
-channel.queue_declare(queue='retry-error-queue')
+channel.queue_declare(queue='retry-error-queue', arguments={"x-dead-letter-exchange" : "retry-dead-letter-exchange"})
 channel.queue_bind(exchange='retry-error-exchange',
                    queue='retry-error-queue',
                    routing_key='*')

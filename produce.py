@@ -17,7 +17,7 @@ channel.queue_bind(exchange='retry-error-exchange',
                    routing_key='*')
 
 channel.exchange_declare(exchange='retry-delay-exchange', exchange_type='x-delayed-message', arguments={'x-delayed-type': 'topic'})
-channel.queue_declare(queue='retry-delay-queue')
+channel.queue_declare(queue='retry-delay-queue', arguments={"x-dead-letter-exchange" : "retry-dead-letter-exchange"})
 channel.queue_bind(exchange='retry-delay-exchange',
                    queue='retry-delay-queue',
                    routing_key='*')

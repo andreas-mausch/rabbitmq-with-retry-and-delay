@@ -3,7 +3,7 @@ import logging
 import pika
 
 RETRY_DELAY_DURATIONS_IN_MILLISECONDS = [
-    500, # 500ms
+    5000, # 5s
     2 * 60 * 1000, # 2min
     30 * 60 * 1000, # 30min
     6 * 60 * 60 * 1000, # 6h
@@ -17,20 +17,25 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+green = "\x1b[32;20m"
+yellow = "\x1b[33;20m"
+red = "\x1b[31;20m"
+reset = "\x1b[0m"
+
 connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
 channel = connection.channel()
 
 logger.info('Consumer started. Waiting for messages. To exit press CTRL+C')
 
 def my_callback(channel, method, properties, body):
-    logger.info(f"<< my-queue: {method.routing_key}:{body}")
+    logger.info(f"{green}<< my-queue: {method.routing_key}:{body}{reset}")
     logger.info(f"             {properties}")
     # channel.basic_ack(delivery_tag=method_frame.delivery_tag)
     # channel.basic_nack(requeue=False)
     channel.basic_reject(method.delivery_tag, requeue=False)
 
 def error_callback(channel, method, properties, body):
-    logger.info(f"<< error-queue: {method.routing_key}:{body}")
+    logger.info(f"{yellow}<< error-queue: {method.routing_key}:{body}{reset}")
     logger.info(f"                reason: {properties.headers['x-first-death-reason']}")
     logger.info(f"                exchange: {properties.headers['x-first-death-exchange']} / queue: {properties.headers['x-first-death-queue']}")
     logger.info(f"                {properties.headers['x-death']}")
@@ -50,7 +55,7 @@ def error_callback(channel, method, properties, body):
     channel.basic_ack(method.delivery_tag)
 
 def delay_callback(channel, method, properties, body):
-    logger.info(f"<< delay-queue: {method.routing_key}:{body}")
+    logger.info(f"{red}<< delay-queue: {method.routing_key}:{body}{reset}")
     logger.info(f"                reason: {properties.headers['x-first-death-reason']}")
     logger.info(f"                exchange: {properties.headers['x-first-death-exchange']} / queue: {properties.headers['x-first-death-queue']}")
     logger.info(f"                {properties.headers['x-death']}")

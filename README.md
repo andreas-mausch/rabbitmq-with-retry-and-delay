@@ -26,7 +26,7 @@ sudo pacman -S python-pika
 ./setup.py
 
 # sends a single message and exists afterwards
-./send-to-normal-queue.py
+./send-to-classic-queue.py
 ./send-to-quorum-queue.py
 
 # The consumer will keep running and listens for any

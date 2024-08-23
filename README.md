@@ -19,6 +19,18 @@ You need pika. Either install it via virtual env or like this:
 sudo pacman -S python-pika
 ```
 
+# Run producer and consumer
+
+```bash
+# The producer sets up all exchanges and queues,
+# sends a single message and exists afterwards
+./producer.py
+
+# The consumer will keep running and listens for any
+# new messages on the queues
+./consumer.py
+```
+
 # Why do we need a delay exchange?
 
 In order for `x-delay` to work, we need an exchange of the type `x-delayed-message`.

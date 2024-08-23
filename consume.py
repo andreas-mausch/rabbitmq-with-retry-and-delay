@@ -32,6 +32,7 @@ def my_callback(channel, method, properties, body):
     logger.info(f"             {properties}")
     # channel.basic_ack(delivery_tag=method_frame.delivery_tag)
     # channel.basic_nack(requeue=False)
+    logger.info(f"          Error Simulation - REJECTING MESSAGE")
     channel.basic_reject(method.delivery_tag, requeue=False)
 
 def error_callback(channel, method, properties, body):

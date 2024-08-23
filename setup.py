@@ -28,9 +28,10 @@ channel.queue_bind(exchange='my-exchange',
                    queue='my-queue',
                    routing_key='*')
 
-channel.basic_publish(exchange='my-exchange',
-                      routing_key='hello',
-                      body='Hello World!')
-print(" >> Sent new message 'Hello World!' to my-exchange")
+channel.exchange_declare(exchange='my-quorum-exchange', exchange_type='topic')
+channel.queue_declare(queue='my-quorum-queue', durable=True, arguments={"x-dead-letter-exchange" : "retry-error-exchange", "x-queue-type" : "quorum", "x-delivery-limit": 3})
+channel.queue_bind(exchange='my-quorum-exchange',
+                   queue='my-quorum-queue',
+                   routing_key='*')
 
 connection.close()

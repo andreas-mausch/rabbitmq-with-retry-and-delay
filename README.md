@@ -22,9 +22,12 @@ sudo pacman -S python-pika
 # Run producer and consumer
 
 ```bash
-# The producer sets up all exchanges and queues,
+# The producer sets up all exchanges and queues
+./setup.py
+
 # sends a single message and exists afterwards
-./producer.py
+./send-to-normal-queue.py
+./send-to-quorum-queue.py
 
 # The consumer will keep running and listens for any
 # new messages on the queues

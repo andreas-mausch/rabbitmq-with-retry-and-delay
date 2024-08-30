@@ -28,20 +28,16 @@ channel = connection.channel()
 
 logger.info('Consumer started. Waiting for messages. To exit press CTRL+C')
 
-def my_callback(channel, method, properties, body):
-    logger.info(f"{green}<< my-queue: {method.routing_key}:{body}{reset}")
+def my_classic_callback(channel, method, properties, body):
+    logger.info(f"{green}<< my-classic-queue: {method.routing_key}:{body}{reset}")
     logger.info(f"             {properties}")
-    # channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-    # channel.basic_nack(requeue=False)
-    logger.info(f"          Error Simulation - REJECTING MESSAGE")
+    logger.info(f"          Simulate an error and REJECT message")
     channel.basic_reject(method.delivery_tag, requeue=False)
 
 def my_quorum_callback(channel, method, properties, body):
     logger.info(f"{blue}<< my-quorum-queue: {method.routing_key}:{body}{reset}")
     logger.info(f"             {properties}")
-    # channel.basic_ack(delivery_tag=method_frame.delivery_tag)
-    # channel.basic_nack(requeue=False)
-    logger.info(f"          Error Simulation - REJECTING MESSAGE, but re-queue it")
+    logger.info(f"          Simulate an error and REJECT message")
     channel.basic_reject(method.delivery_tag, requeue=True)
 
 def error_callback(channel, method, properties, body):
@@ -78,7 +74,7 @@ def delay_callback(channel, method, properties, body):
                           properties=properties)
     channel.basic_ack(method.delivery_tag)
 
-channel.basic_consume(queue='my-queue', on_message_callback=my_callback, auto_ack=False)
+channel.basic_consume(queue='my-classic-queue', on_message_callback=my_classic_callback, auto_ack=False)
 channel.basic_consume(queue='my-quorum-queue', on_message_callback=my_quorum_callback, auto_ack=False)
 channel.basic_consume(queue='retry-error-queue', on_message_callback=error_callback, auto_ack=False)
 channel.basic_consume(queue='retry-delay-queue', on_message_callback=delay_callback, auto_ack=False)

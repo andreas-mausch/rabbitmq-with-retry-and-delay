@@ -17,13 +17,13 @@ channel = connection.channel()
 
 logger.info('Consumer started. Waiting for messages. To exit press CTRL+C')
 
-def my_callback(channel, method, properties, body):
-    logger.info(f"{green}<< my-queue: {method.routing_key}:{body}{reset}")
+def my_classic_callback(channel, method, properties, body):
+    logger.info(f"{green}<< my-classic-queue: {method.routing_key}:{body}{reset}")
     logger.info(f"             {properties}")
-    logger.info(f"          Error Simulation - REJECTING MESSAGE")
+    logger.info(f"          Simulate an error and REJECT message")
     channel.basic_reject(method.delivery_tag, requeue=False)
 
-channel.basic_consume(queue='my-queue', on_message_callback=my_callback, auto_ack=False)
+channel.basic_consume(queue='my-classic-queue', on_message_callback=my_classic_callback, auto_ack=False)
 
 try:
     channel.start_consuming()

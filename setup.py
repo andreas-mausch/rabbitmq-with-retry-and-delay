@@ -22,10 +22,10 @@ channel.queue_bind(exchange='retry-delay-exchange',
                    queue='retry-delay-queue',
                    routing_key='*')
 
-channel.exchange_declare(exchange='my-exchange', exchange_type='topic')
-channel.queue_declare(queue='my-queue', arguments={"x-dead-letter-exchange" : "retry-error-exchange"})
-channel.queue_bind(exchange='my-exchange',
-                   queue='my-queue',
+channel.exchange_declare(exchange='my-classic-exchange', exchange_type='topic')
+channel.queue_declare(queue='my-classic-queue', arguments={"x-dead-letter-exchange" : "retry-error-exchange"})
+channel.queue_bind(exchange='my-classic-exchange',
+                   queue='my-classic-queue',
                    routing_key='*')
 
 channel.exchange_declare(exchange='my-quorum-exchange', exchange_type='topic')

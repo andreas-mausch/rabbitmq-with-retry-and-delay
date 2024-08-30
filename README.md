@@ -4,12 +4,15 @@
 
 # Start RabbitMQ with Delay Plugin
 
+We use an exchange of type `x-delayed-message`, which requires the
+[rabbitmq-delayed-message-exchange](https://github.com/rabbitmq/rabbitmq-delayed-message-exchange).
+
 ```bash
 docker run -it --rm -p 5672:5672 -p 15672:15672 -e RABBITMQ_DEFAULT_USER=guest -e RABBITMQ_DEFAULT_PASS=guest heidiks/rabbitmq-delayed-message-exchange:3.13.3-management
 ```
 
-Management UI:
-http://localhost:15672
+The management UI will be available at:
+[http://localhost:15672](http://localhost:15672)
 
 # Python dependencies
 
@@ -34,12 +37,19 @@ sudo pacman -S python-pika
 ./consumer.py
 ```
 
+# Run the old version without retries
+
+Important: Start with a fresh RabbitMQ.
+`setup.py` must not be invoked on that one.
+
+```bash
+cd ./without-retries
+./produce-before.py
+./consume-before.py
+```
+
 # Why do we need a delay exchange?
 
 In order for `x-delay` to work, we need an exchange of the type `x-delayed-message`.
 So we have the choice of either making our normal exchanges all of this type, or
 rather have only a single place for this exception.
-
-# TODOs
-
-- Use a quorum queue. Can we skip the `reject_count` then?
